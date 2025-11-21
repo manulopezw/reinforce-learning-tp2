@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.pytest_cache/
+.mypy_cache/
+
+# Entorno virtual
+.venv/
+
+# Notebooks
+.ipynb_checkpoints/
+
+# Editor/OS
+.vscode/
+.DS_Store
+
+# Resultados y artefactos locales
+results/
+logs/
+checkpoints/
+data/processed/
