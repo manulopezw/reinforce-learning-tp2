@@ -35,10 +35,11 @@ class RecommendationDataset(Dataset):
         group = traj["user_group"]
 
         seq_len = min(len(items), self.context_length)
-        if len(items) > self.context_length:
-            start_idx = np.random.randint(0, len(items) - self.context_length + 1)
-        else:
-            start_idx = 0
+        start_idx = (
+            np.random.randint(0, len(items) - self.context_length + 1)
+            if len(items) > self.context_length
+            else 0
+        )
         end_idx = start_idx + seq_len
 
         # Ventana de la trayectoria
@@ -64,6 +65,10 @@ class RecommendationDataset(Dataset):
         states_padded[:seq_len] = states
         actions_padded[:seq_len] = actions
 
+        # Attention mask: 1 donde hay datos, 0 en padding
+        attn_mask = np.zeros(self.context_length, dtype=np.float32)
+        attn_mask[:seq_len] = 1.0
+
         return {
             "states": torch.tensor(states_padded, dtype=torch.long),
             "actions": torch.tensor(actions_padded, dtype=torch.long),
@@ -71,6 +76,7 @@ class RecommendationDataset(Dataset):
             "timesteps": torch.tensor(time_seq, dtype=torch.long),
             "groups": torch.tensor(group, dtype=torch.long),
             "targets": torch.tensor(targets, dtype=torch.long),
+            "attention_mask": torch.tensor(attn_mask, dtype=torch.float32),
         }
 
 

@@ -33,8 +33,11 @@ def train_decision_transformer(
             timesteps = batch["timesteps"].to(device)
             groups = batch["groups"].to(device)
             targets = batch["targets"].to(device)
+            attn_mask = batch.get("attention_mask", None)
+            if attn_mask is not None:
+                attn_mask = attn_mask.to(device)
 
-            logits = model(states, actions, rtg, timesteps, groups)
+            logits = model(states, actions, rtg, timesteps, groups, attention_mask=None, padding_mask=attn_mask)
             loss = F.cross_entropy(
                 logits.reshape(-1, model.num_items),
                 targets.reshape(-1),
@@ -62,8 +65,11 @@ def train_decision_transformer(
                     timesteps = batch["timesteps"].to(device)
                     groups = batch["groups"].to(device)
                     targets = batch["targets"].to(device)
+                    attn_mask = batch.get("attention_mask", None)
+                    if attn_mask is not None:
+                        attn_mask = attn_mask.to(device)
 
-                    logits = model(states, actions, rtg, timesteps, groups)
+                    logits = model(states, actions, rtg, timesteps, groups, attention_mask=None, padding_mask=attn_mask)
                     loss = F.cross_entropy(
                         logits.reshape(-1, model.num_items),
                         targets.reshape(-1),

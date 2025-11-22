@@ -57,6 +57,7 @@ class DecisionTransformer(nn.Module):
         timesteps: torch.Tensor,
         user_groups: torch.Tensor,
         attention_mask: torch.Tensor | None = None,
+        padding_mask: torch.Tensor | None = None,
     ) -> torch.Tensor:
         """
         Args:
@@ -82,10 +83,18 @@ class DecisionTransformer(nn.Module):
         h = state_emb + action_emb + rtg_emb + time_emb + group_emb
         h = self.ln(h)
 
-        if attention_mask is None:
-            attention_mask = self._generate_causal_mask(seq_len).to(h.device)
+        causal_mask = (
+            attention_mask.to(h.device)
+            if attention_mask is not None
+            else self._generate_causal_mask(seq_len).to(h.device)
+        )
 
-        h = self.transformer(h, mask=attention_mask)
+        # padding_mask: True donde hay padding para enmascarar en el encoder
+        key_padding = None
+        if padding_mask is not None:
+            key_padding = padding_mask == 0
+
+        h = self.transformer(h, mask=causal_mask, src_key_padding_mask=key_padding)
         item_logits = self.predict_item(h)
         return item_logits
 
