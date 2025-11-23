@@ -1,0 +1,10 @@
+Usuarios:
+ 16000Items únicos (train):
+ 752Interacciones totales:
+ 1797612Longitudes (mean/min/max):
+ {'mean': 112.35075, 'min': 25.0, 'max': 200.0}Distribución de ratings:
+  Rating 1.0: 249659
+  Rating 2.0: 322585
+  Rating 3.0: 398913
+  Rating 4.0: 442577
+  Rating 5.0: 383878

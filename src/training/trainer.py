@@ -14,12 +14,15 @@ def train_decision_transformer(
     optimizer,
     device,
     num_epochs=50,
+    return_history=False,
 ):
     """
     Entrena el Decision Transformer.
     Loss: Cross-entropy entre item predicho y item verdadero.
     """
     model.train()
+
+    history = []
 
     for epoch in range(num_epochs):
         total_loss = 0
@@ -48,8 +51,11 @@ def train_decision_transformer(
             total_loss += loss.item()
 
         avg_loss = total_loss / len(train_loader)
+        history.append(avg_loss)
         print(f"Epoch {epoch + 1}/{num_epochs}, Loss: {avg_loss:.4f}")
 
+    if return_history:
+        return model, history
     return model
 
 

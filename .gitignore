@@ -16,7 +16,7 @@ __pycache__/
 .DS_Store
 
 # Resultados y artefactos locales
-results/
-logs/
-checkpoints/
-data/processed/
+# results/
+# logs/
+# checkpoints/
+# data/processed/
