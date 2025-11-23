@@ -18,7 +18,7 @@ Uso:
 # 🎯 CONFIGURACIÓN: MODIFICA ESTA LÍNEA
 # ============================================
 
-DATASET = 'goodreads'    # Opciones: 'netflix' o 'goodreads'
+DATASET = 'netflix'    # Opciones: 'netflix' o 'goodreads'
 
 # ============================================
 # Configuración automática (NO MODIFICAR)

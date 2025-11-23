@@ -1,5 +1,5 @@
 """
-Métricas de ranking (Parte 3.3): HR@K, NDCG@K, MRR.
+Métricas de ranking según referencia (Parte 3.3).
 """
 from __future__ import annotations
 
@@ -7,13 +7,13 @@ import numpy as np
 import torch
 
 
-def hit_rate_at_k(predictions: torch.Tensor, targets: torch.Tensor, k: int = 10) -> float:
+def hit_rate_at_k(predictions, targets, k=10):
     top_k = torch.topk(predictions, k, dim=1).indices
     hits = (top_k == targets.unsqueeze(1)).any(dim=1).float()
     return hits.mean().item()
 
 
-def ndcg_at_k(predictions: torch.Tensor, targets: torch.Tensor, k: int = 10) -> float:
+def ndcg_at_k(predictions, targets, k=10):
     top_k_indices = torch.topk(predictions, k, dim=1).indices
     relevance = (top_k_indices == targets.unsqueeze(1)).float()
     ranks = torch.arange(1, k + 1, device=predictions.device).float()
@@ -23,7 +23,7 @@ def ndcg_at_k(predictions: torch.Tensor, targets: torch.Tensor, k: int = 10) -> 
     return ndcg.mean().item()
 
 
-def mrr(predictions: torch.Tensor, targets: torch.Tensor) -> float:
+def mrr(predictions, targets):
     sorted_indices = torch.argsort(predictions, dim=1, descending=True)
     ranks = (sorted_indices == targets.unsqueeze(1)).nonzero()[:, 1] + 1
     rr = 1.0 / ranks.float()

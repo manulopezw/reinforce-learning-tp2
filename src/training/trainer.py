@@ -1,5 +1,5 @@
 """
-Loop de entrenamiento para Decision Transformer (Parte 2.3).
+Loop de entrenamiento según referencia (Parte 2.3).
 """
 from __future__ import annotations
 
@@ -9,22 +9,20 @@ from torch.utils.data import DataLoader
 
 
 def train_decision_transformer(
-    model: torch.nn.Module,
+    model,
     train_loader: DataLoader,
-    optimizer: torch.optim.Optimizer,
-    device: torch.device,
-    num_epochs: int = 50,
-    val_loader: DataLoader | None = None,
+    optimizer,
+    device,
+    num_epochs=50,
 ):
     """
-    Entrena el modelo con cross-entropy sobre los próximos items.
+    Entrena el Decision Transformer.
+    Loss: Cross-entropy entre item predicho y item verdadero.
     """
-    model.to(device)
-    history = {"train_loss": [], "val_loss": []}
+    model.train()
 
     for epoch in range(num_epochs):
-        model.train()
-        total_loss = 0.0
+        total_loss = 0
 
         for batch in train_loader:
             states = batch["states"].to(device)
@@ -33,11 +31,9 @@ def train_decision_transformer(
             timesteps = batch["timesteps"].to(device)
             groups = batch["groups"].to(device)
             targets = batch["targets"].to(device)
-            attn_mask = batch.get("attention_mask", None)
-            if attn_mask is not None:
-                attn_mask = attn_mask.to(device)
 
-            logits = model(states, actions, rtg, timesteps, groups, attention_mask=None, padding_mask=attn_mask)
+            logits = model(states, actions, rtg, timesteps, groups)
+
             loss = F.cross_entropy(
                 logits.reshape(-1, model.num_items),
                 targets.reshape(-1),
@@ -51,39 +47,10 @@ def train_decision_transformer(
 
             total_loss += loss.item()
 
-        avg_train = total_loss / len(train_loader)
-        history["train_loss"].append(avg_train)
+        avg_loss = total_loss / len(train_loader)
+        print(f"Epoch {epoch + 1}/{num_epochs}, Loss: {avg_loss:.4f}")
 
-        if val_loader is not None:
-            model.eval()
-            val_loss = 0.0
-            with torch.no_grad():
-                for batch in val_loader:
-                    states = batch["states"].to(device)
-                    actions = batch["actions"].to(device)
-                    rtg = batch["rtg"].to(device)
-                    timesteps = batch["timesteps"].to(device)
-                    groups = batch["groups"].to(device)
-                    targets = batch["targets"].to(device)
-                    attn_mask = batch.get("attention_mask", None)
-                    if attn_mask is not None:
-                        attn_mask = attn_mask.to(device)
-
-                    logits = model(states, actions, rtg, timesteps, groups, attention_mask=None, padding_mask=attn_mask)
-                    loss = F.cross_entropy(
-                        logits.reshape(-1, model.num_items),
-                        targets.reshape(-1),
-                        ignore_index=-1,
-                    )
-                    val_loss += loss.item()
-            avg_val = val_loss / len(val_loader)
-            history["val_loss"].append(avg_val)
-
-        print(f"Epoch {epoch + 1}/{num_epochs} - train_loss={avg_train:.4f}")
-        if val_loader is not None:
-            print(f"  val_loss={avg_val:.4f}")
-
-    return model, history
+    return model
 
 
 __all__ = ["train_decision_transformer"]
